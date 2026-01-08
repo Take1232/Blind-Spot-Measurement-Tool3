@@ -12,7 +12,7 @@ canvas {
 /* ---------------------------------- */
 #dataControlTable {
     border-collapse: collapse; 
-    width: 500px; 
+    width: 400px; 
     margin: 50px auto 10px auto; 
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     table-layout: fixed; 
@@ -43,7 +43,7 @@ canvas {
 /* ---------------------------------- */
 #dataControlTable tbody td {
     padding: 0; /* paddingを0にしてフォームをフィットさせる */
-    
+    border: none;
     border-top: 1px solid #ccc;
     height: 35px;
     vertical-align: middle; /* フォーム/テキストを中央に配置 */
@@ -64,22 +64,4 @@ canvas {
     border-right: 1px solid #ccc; 
 }
 
-
-
-/* ---------------------------------- */
-/* 結果表示セルのスタイル */
-/* ---------------------------------- */
-.result-cell {
-    background-color: #fffff; /* 薄い背景色で入力と区別 */
-    text-align: center;
-    font-size: 14px;
-    font-weight: bold;
-    color: #e91e63; /* 結果を強調 */
-    /* 罫線 */
-    border-right: 1px solid #ccc;
-    
-}
-.result-cell:last-child {
-    border-right: none;
-}
 
