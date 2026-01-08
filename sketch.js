@@ -1,38 +1,53 @@
-let x0=400,posx=0,referenceX,radi=15,migi=true,mouten,d=10,count=0,l,px,theta,v,D;
+let x0=400,posx,referenceX,radi=15,migi=true,number,mouten;
 let input1;
+let circles = [];
+let showShape = false;
 
 function setup() {
   createCanvas(windowWidth, windowHeight-200);
-  frameRate(10);
+  frameRate(20);
   angleMode(DEGREES);
   
 //  初期値の設定
     referenceX=width/2-400
+//  円の初期設定
+    for (let i = 0; i < 8; i++) {
+    circles.push({
+      angle: i,    
+      x: 20,      
+      moving: false  
+    });
+  } 
+  
   
 //  リセットボタン   
     button1 = createButton("リセット (r)");
     button1.size(150,40);
-    button1.position(width/2,height+5);
+    button1.position(width/2-75,height+5);
     button1.mousePressed(reset);
 //  左右切り替えボタン 
     button2=createButton("左右切り替え (c)");
     button2.size(150,40);
-    button2.position(width/2-150,height+5);
+    button2.position(width/2-225,height+5);
     button2.mousePressed(change);
   
+    button3=createButton("図形を表示");
+    button3.size(150,40);
+    button3.position(width/2+75,height+5);
+    button3.mousePressed(toggleShape);
+
   
 //  100pxの長さ　入力フォーム
-  input1 = select('#input_pixelLen'); 
-  input1.input(update_mouten);
+    input1 = select('#input_pixelLen'); 
+    input1.input(update_mouten);
 //  観察距離　入力フォーム
-  input2 = select('#input_obsDist');  
-  input2.input(update_mouten);
+    input2 = select('#input_obsDist');  
+    input2.input(update_mouten);
 //  盲点の位置　入力フォーム  
-  input3 = select('#input_angle');    
-  input3.input(update_mouten);
-
-  update_mouten();
+    input3 = select('#input_angle');    
+    input3.input(update_mouten);
   
+    update_mouten();
 }
 
 function draw(){
@@ -46,23 +61,21 @@ function draw(){
     line(referenceX,height/2-15,referenceX,height/2+15);
   pop();
   
-  if(migi==true){ 
-  posx=referenceX + mouten;
+  if(showShape == true) {
+    draw_shape();
   }
-  else{
-  posx=referenceX - mouten;
-  }
-  fill(255,0,0);
-  d+=count;
-  ellipse(posx,height/2,d,d);
   
-  calculation();
+  move_mouten();
   
 }
 
 function reset(){
-  d=10;
-  count=0;
+ for (let i=0;i<circles.length;i++) {
+    let c=circles[i];
+      c.x =20;
+      c.moving=false;
+    } 
+  showShape = false;
 }
 
 function change(){
@@ -82,14 +95,27 @@ function update_mouten(){
   px = input1.value()/100; //1pxの長さ(mm)
   l = 10 * input2.value(); //観察距離(mm)
   theta = input3.value(); //(°)
-  mouten = int((l/px)*tan(theta));
+  mouten = (l/px)*tan(theta);
+  if(migi==true){
+  mouten = int(mouten);  
+  }
+  else{
+  mouten = -1*int(mouten); 
+  }
 }
 
-function start(){
-  if(count===0){
-    count=1;}
-  else{
-    count=0;}
+function move_mouten(){
+  for (let i=0;i<circles.length;i++) {
+    let c=circles[i];
+    if (c.moving) {
+      c.x += 1;}
+    push();
+      fill(255,0,0);
+      translate(referenceX+mouten,height/2)
+      rotate(c.angle * 45);
+      ellipse(c.x, 0, 15,15);
+    pop();
+  }
 }
 
 function grid(){
@@ -113,37 +139,41 @@ function keyTyped(){
   } if(key==="c"){
     change();
   }
-  if(keyCode===ENTER){
-    start();
-  }
 }
 
-function calculation(){  
-  D=(d*px);
-  v=2*atan(D/(2*l));
-  
-  // 視角 (v)
-  let vFormatted = v.toFixed(2);
-  let vElement = document.getElementById('result_v');
-  if (vElement) {
-      vElement.textContent = vFormatted;
+function keyPressed() {
+  let n = int(key);
+//   入力フォームに数字を入力しているときは球が動かない
+  if (document.activeElement === input1.elt || document.activeElement === input2.elt || document.activeElement === input3.elt) {
+  }else{
+  if (n >= 1 && n <= 8) {
+    let c = circles[n - 1];
+    c.moving = !c.moving; 
   }
-  
-  // 直径 (D)
-  let DFormatted = D.toFixed(0);
-  let DElement = document.getElementById('result_D');
-  if (DElement) {
-      DElement.textContent = DFormatted;
   }
-  
+}  
+
+
+function draw_shape(){
   push();
-  fill(255,255,255,200);
-  v=v.toFixed(2)
-  textAlign(CENTER,TOP);
- 
-  textAlign(CENTER,BOTTOM);
-  D=D.toFixed(0)
+  let centerX = referenceX + mouten;
+  let centerY = height / 2;
   
+  stroke(255, 0, 0);
+  strokeWeight(2);
+  fill(255, 0, 0, 50);
+  
+  beginShape();
+  for (let i = 0; i < circles.length; i++) {
+    let c = circles[i];
+    let vx = centerX + cos(c.angle * 45) * c.x;
+    let vy = centerY + sin(c.angle * 45) * c.x;
+    vertex(vx, vy);
+  }
+  endShape(CLOSE); 
   pop();
-  
+}
+
+function toggleShape() {
+  showShape = !showShape;
 }
